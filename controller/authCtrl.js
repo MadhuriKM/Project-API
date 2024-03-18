@@ -1,6 +1,8 @@
 const { StatusCodes } = require("http-status-codes")
 const UserModel = require('../model/user')
 const bcryptjs = require("bcryptjs")
+const generateToken = require('../util/token')
+const mailsend = require('../config/mail')
 
 // register
 const register  = async(req,res) => {
@@ -29,8 +31,22 @@ const register  = async(req,res) => {
             password: encPass,
             role
         })
+
+        // email
+        let template = `<div>
+                        <h1>Hi ${newUser.name},</h1>
+                        <p> You have Successfully Registered at ${new Date().toString}</p>
+                        <h3 style="padding:'10px';background:'skyblue';">
+                                <strong>Username</strong> : <span style="color:'white';">
+                                ${newUser.email}</span> <br/>
+                                <strong>Password</strong> : <span style="color:'white';">
+                                ${password} </span>
+                        </h3>
+                         </div>`;
+        let emailRes = await mailsend(newUser.email,"Registration Information",template)
+
         // final response
-        res.status(StatusCodes.ACCEPTED).json({ status: true, msg: "User Registered successfully", user : newUser })
+        res.status(StatusCodes.ACCEPTED).json({ status: true, msg: "User Registered successfully", user : newUser, emailRes })
     } catch (err) {
         return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ status: false, msg: err.message})
     }
@@ -51,7 +67,23 @@ const login  = async(req,res) => {
             if(!passVal)
                 return res.status(StatusCodes.UNAUTHORIZED).json({ status: false, msg: `Password are not matched`})
        
-        res.json({ msg: "login success"})
+        //generate auth token
+        let authToken = await generateToken(extEmail._id)
+
+        // send mail
+        let template = `<div><h1>Hi ${extEmail.name}, </h1>
+                    <p>You have Successfully login into profile at ${new Date().toString()}</p>
+        </div>`;
+
+        let emailRes = await mailsend(extEmail.email,"Login Information",template)
+
+        // store token in cookies
+        res.cookie("authToken", authToken, {
+            httpOnly: true,
+            signed: true,
+            maxAge: 1 * 24 * 60 * 60 * 1000
+        })
+        res.json({ msg: "login success", token: authToken, user: extEmail })
     } catch (err) {
         return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ status: false, msg: err.message})
     }
@@ -60,7 +92,9 @@ const login  = async(req,res) => {
 // logout
 const logout  = async(req,res) => {
     try {
-        res.json({ msg: "logout"})
+        res.clearCookie("authToken", { path: `/`})
+
+        res.status(StatusCodes.OK).json({ msg: "logout successfully"})
     } catch (err) {
         return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ status: false, msg: err.message})
     }
@@ -69,6 +103,8 @@ const logout  = async(req,res) => {
 // verify user
 const verifyUser  = async(req,res) => {
     try {
+        
+
         res.json({ msg: "verify user"})
     } catch (err) {
         return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ status: false, msg: err.message})
