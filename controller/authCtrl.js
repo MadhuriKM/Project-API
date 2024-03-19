@@ -103,9 +103,17 @@ const logout  = async(req,res) => {
 // verify user
 const verifyUser  = async(req,res) => {
     try {
-        
+        // read the incoming user id through middleware
+         const id = req.userId 
 
-        res.json({ msg: "verify user"})
+         // read the user data
+         let extUser = await UserModel.findById(id).select('-password')
+            if(!extUser)
+             return res.status(StatusCodes.NOT_FOUND).json({ status: false, msg: `requsted user id not exists.`})
+
+             // final response
+             res.status(StatusCodes.OK).json({ status: true, msg: "user verified successfully", user: extUser })
+
     } catch (err) {
         return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ status: false, msg: err.message})
     }
