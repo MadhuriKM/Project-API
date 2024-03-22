@@ -42,7 +42,7 @@ function Register() {
         </div>
         <div className="col-md-6 col-lg-6 col-sm-12">
          <div className="card">
-          <div className="card-header text-center bg-theme">
+          <div className="card-header text-center bg-white">
             <h4 className="display-4 text-theme">SignUp</h4>
           </div>
           <div className="card-body">

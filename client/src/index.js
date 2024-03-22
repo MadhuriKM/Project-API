@@ -11,11 +11,14 @@ import "bootstrap/dist/js/bootstrap.bundle"
 import "react-toastify/dist/ReactToastify.css"
 
 import "bootstrap-icons/font/bootstrap-icons.css"
+import AuthProvider from './Context/AuthContext';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
+    <AuthProvider>
     <App />
+    </AuthProvider>
   </React.StrictMode>
 );
 

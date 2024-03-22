@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { toast } from 'react-toastify'
 import axios from 'axios'
 import { useNavigate, NavLink} from 'react-router-dom'
+import { useAuth } from '../Hooks/AuthHook'
 
 function Login() {
   const [user,setUser] = useState({
@@ -11,6 +12,9 @@ function Login() {
   })
 
   const navigate = useNavigate()
+
+  // creating instance of context -> (consumer)
+  const { setToken } = useAuth()
 
   const readvalue = (e) => {
     const { name, value } = e.target
@@ -26,6 +30,7 @@ function Login() {
       
      .then(res => {
           toast.success(res.data.msg)
+          setToken(res.data.token)
           navigate(`/`)
         }).catch(err => toast.error(err.response.data.msg))
     } catch (err) {
