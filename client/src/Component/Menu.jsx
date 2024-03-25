@@ -1,7 +1,28 @@
 import React from 'react'
-import { NavLink } from 'react-router-dom'
+import { NavLink, useNavigate } from 'react-router-dom'
+import { useAuth } from '../Hooks/AuthHook'
+import { toast } from 'react-toastify'
+import axios from 'axios'
 
 function Menu() {
+  const { contextToken, setToken, setCurrentUser,setLogin } = useAuth()
+  const navigate= useNavigate()
+
+  const logout = async () => {
+    if(window.confirm(`Are you sure to logout?`)){
+      await axios.get(`/api/auth/logout`)
+        .then(res => {
+           toast.success(res.data.msg)
+           navigate(`/login`)
+           setToken(false)
+           setCurrentUser(false)
+           setLogin(false)
+         }).catch(err => toast.error(err.response.data.msg))
+    } else {
+      toast.warning("logout terminated")
+      
+    }
+  }
   return (
     <header>
       <nav className="navbar navbar-expand-md navbar-dark bg-theme">
@@ -26,11 +47,20 @@ function Menu() {
             <NavLink to={`/about`} className="list-group-item">About</NavLink>
             <NavLink to={`/contact`} className="list-group-item">Contact</NavLink>
           </div>
-          <div className="list-group text-center mt-2">
-          <NavLink to={`/login`} className="list-group-item">Login</NavLink>
-            <NavLink to={`/register`} className="list-group-item">Register</NavLink>
+          {
+            contextToken?.token && contextToken?.login ? (
+              <div className="list-group text-center mt-2">
+              <NavLink to={`/dashboard`} className="list-group-item">Dashboard</NavLink>
+              <button onClick={logout} className="btn btn-danger mt-2">Logout</button>
           </div>
-        </div>
+            ) : (
+              <div className="list-group text-center mt-2">
+                <NavLink to={`/login`} className="list-group-item">Login</NavLink>
+                <NavLink to={`/register`} className="list-group-item">Register</NavLink>
+              </div>
+            )
+          }
+        </div> 
       </div>
     </header>
   )

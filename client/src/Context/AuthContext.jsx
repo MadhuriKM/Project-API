@@ -6,8 +6,12 @@ export const AuthContext = createContext()
 
 // auth provider component
 function AuthProvider(props) {
-
+//token
 const [token,setToken] = useState(false)
+//login status => if login = true, if logout = false
+const [login,setLogin] = useState(false)
+// login user info
+const [currentUser,setCurrentUser] = useState(false)
 
 useEffect(() => {
     if(token) {
@@ -18,12 +22,14 @@ useEffect(() => {
 },[token])
 
 const contextToken = useMemo(() => ({
-    token
-}), [token])
+    token,
+    login,
+    currentUser
+}), [token,login,currentUser])
    
 
   return (
-   <AuthContext.Provider value={{contextToken, setToken }} >
+   <AuthContext.Provider value={{contextToken, setToken, setLogin,setCurrentUser }} >
      {
      props.children
      }

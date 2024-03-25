@@ -8,6 +8,8 @@ import Register from './Pages/Register'
 import Pnf from './Pages/Pnf'
 import About from './Pages/About'
 import Contact from './Pages/Contact'
+import PrivateRoute from './PrivateRouter/PrivateRoute'
+import Dashboard from './Pages/Dashboard/Dashboard'
 
 function App() {
   return (
@@ -15,6 +17,9 @@ function App() {
         <Menu/>
         <ToastContainer autoClose={4000} position={'top-right'}/>
         <Routes>
+          <Route element={<PrivateRoute/>}>
+             <Route path={`/dashboard`} element={<Dashboard/>} />
+            </Route>
             <Route path={`/`} element={<Home/>} />
             <Route path={`/about`} element={<About/>} />
             <Route path={`/contact`} element={<Contact/>} />
